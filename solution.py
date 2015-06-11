@@ -1,60 +1,70 @@
-
-def add_node(row, col, partition, num_cols):
-    # This function adds a node to the partition list. To do this, it checks
-    # each connected component in the partition to find adjacent nodes. When
-    # an adjacent node is found, the new node is added to the adjacent node's
-    # component or, if the new node has already been added to another
-    # component, then the two adjacent components are unified. Finally, in the
-    # case where no adjacent node is found, a new component containing only
-    # the new node is added to the partition.
-
-    # Parameters:
-    # row       the row of the new node
-    # col       the column of the new node
-    # partition a list of connected components, each one itself a list of nodes
-    # num_cols  the number of columns in the input
-    added = -1
-    for i in xrange(len(partition)):
-        for p_i in reversed(partition[i]):
-            if row - (p_i // num_cols) > 1:
-                # Only compare nodes in the current or immediately previous 
-                # row. This works as long as individual connected components
-                # are sorted.
-                break
-            if abs(col - (p_i % num_cols)) <= 1:
-                if added != -1:
-                    # If the new node has already been added to another
-                    # component, adjacency to another component requires that
-                    # the two connected components be unified.
-                    partition[added].extend(partition[i])
-                    partition[added].sort()
-                    partition[i] = []
-                else:
-                    # Add the new node to the connected component of the first-
-                    # matched, adjacent node.
-                    partition[i].append((row * num_cols) + col)
-                    added = i
-                break
-    if added == -1:
-        # If no existing nodes are found to be adjacent, then create a new
-        # component for the newly-created node.
-        partition.append([(row * num_cols) + col])
-
 def main():
-    partition = []
-    num_rows = int(raw_input())
-    num_cols = int(raw_input())
+    # This function computes the sizes of the connected components of the graph
+    # and prints the largest.
+    partition = [] # A list of ints representing the size of each component
+    num_rows = int(raw_input()) # Number of rows in the input
+    num_cols = int(raw_input()) # Number of columns per row
+    in_list = [0] * num_cols    # Lists representing the current and previous
+    prev_list = [0] * num_cols  # rows are initialized to all-zeros.
 
     for row in xrange(num_rows):
-        in_list = map(int, raw_input().split(" "));
+        in_list = map(int, raw_input().split(" "))
         for col in xrange(num_cols):
             if in_list[col] == 0:
                 continue
             else:
-                add_node(row, col, partition, num_cols)
-    print max(map(len, partition))
+                # When the current row and column of the input contains a 1,
+                # check for adjacent nodes (grid values of 1). If any
+                # adjacent nodes are found (among previously-seen nodes), add
+                # the new node to the adjacent node's connected component. This
+                # entails setting the current node's grid value to value of the
+                # index of the connected component (in partition), then
+                # incrementing the size of the connected component in
+                # partition.
+                # Note that we store each index plus 1 in the grid, since 0
+                # indicates that no node exists there.
+                added = 0
+                if col > 0 and in_list[col - 1] != 0:
+                    # The previous node exists, so copy the index of its
+                    # connected component into the current node and into added
+                    # and increment its size in partition.
+                    component = in_list[col - 1]
+                    partition[component - 1] += 1
+                    in_list[col] = component
+                    added = component
+                for x in [col - 1, col, col + 1]:
+                    if x < 0:
+                        continue
+                    if x >= num_cols:
+                        break
+                    if prev_list[x] != 0:
+                        # An adjacent node is found in the previous row.
+                        component = prev_list[x]
+                        if added != 0:
+                            # The new node has already been added to a
+                            # component. Update indices in the previous row to
+                            # replace the new component with the existing one,
+                            # and add the newly-discovered components size to
+                            # that of the existing one in the partition.
+                            if added != component:
+                                prev_list = map(lambda y: added if y == component else y, prev_list)
+                                partition[added - 1] += partition[component - 1]
+                                partition[component - 1] = 0
+                        else:
+                            # Add the new node to the connected component of
+                            # the adjacent node.
+                            in_list[col] = component
+                            partition[in_list[col] - 1] += 1
+                            added = component
+                if added == 0:
+                    # If no nodes were found adjacent to the new node, create a
+                    # new, empty connected component and put the new node into
+                    # it.
+                    partition.append(1)
+                    in_list[col] = len(partition)
+                    added = in_list[col]
+        prev_list = in_list
+    print max(partition)
         
 if __name__ == "__main__":
     main()
-    #import cProfile
-    #cProfile.run('main()')
