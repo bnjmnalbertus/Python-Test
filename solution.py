@@ -20,7 +20,7 @@ def add_row(prev_row, curr_row, partition):
                 # connected component into the current node and into added
                 # and increment its size in partition.
                 curr_row[col] = curr_row[col - 1]
-                partition[curr_row[col] - 1] += 1
+                partition[curr_row[col]] += 1
                 added = curr_row[col]
 
             for x in [col - 1, col, col + 1]:
@@ -34,20 +34,22 @@ def add_row(prev_row, curr_row, partition):
                     # An adjacent node is found in the previous row.
                     if added != 0:
                         # The new node has already been added to a
-                        # component. Update indices in the previous row to
-                        # replace the new component with the existing one,
-                        # and add the newly-discovered components size to
+                        # component. Update indices in the previous and current
+                        # rows to replace the new component with the existing 
+                        # one, and add the newly-discovered components size to
                         # that of the existing one in the partition.
                         component = prev_row[x]
                         if added != component:
                             prev_row = map(lambda y: added if y == component else y, prev_row)
-                            partition[added - 1] += partition[component - 1]
-                            partition[component - 1] = 0
+                            for y in xrange(col):
+                                curr_row[y] = added if curr_row[y] == component else curr_row[y]
+                            partition[added] += partition[component]
+                            partition[component] = 0
                     else:
                         # Add the new node to the connected component of
                         # the adjacent node.
                         curr_row[col] = prev_row[x]
-                        partition[curr_row[col] - 1] += 1
+                        partition[curr_row[col]] += 1
                         added = curr_row[col]
 
             if added == 0:
@@ -55,14 +57,14 @@ def add_row(prev_row, curr_row, partition):
                 # new, empty connected component and put the new node into
                 # it.
                 partition.append(1)
-                curr_row[col] = len(partition)
+                curr_row[col] = len(partition) - 1
 
     return (curr_row, partition)
 
 def main():
     # This function computes the sizes of the connected components of the graph
     # and prints the largest.
-    partition = [] # A list of ints representing the size of each component
+    partition = [0] # A list of ints representing the size of each component
     num_rows = int(raw_input()) # Number of rows in the input
     num_cols = int(raw_input()) # Number of columns per row
     in_list = [0] * num_cols    # Lists representing the current and previous
