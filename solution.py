@@ -1,3 +1,8 @@
+from multiprocessing import Pool
+
+def mt_solve(grid):
+    return
+
 def solve(grid):
     # This function partitions a 2-dimensional array of 1's and 0's into its
     # connected components. The result is a list of connected-component sizes.
@@ -26,7 +31,8 @@ def solve(grid):
                             if added != component:
                                 # Update entries in current and previous rows
                                 # to unify component indices.
-                                prev_row = map(lambda y: added if y == component else y, prev_row)
+                                for y in xrange(col - 1, len(prev_row)):
+                                    prev_row[y] = added if prev_row[y] == component else prev_row[y]
                                 for y in xrange(col):
                                     curr_row[y] = added if curr_row[y] == component else curr_row[y]
 
