@@ -1,6 +1,7 @@
 import cProfile
 
 def neighbors(key, dict1):
+    # Remove entries adjacent to key in dict1 and add them to list1.
     list1 = []
     for x in [(key[0]-1, key[1]-1),(key[0], key[1]-1),(key[0]+1, key[1]-1),(key[0]-1, key[1]),(key[0]+1, key[1]),(key[0]-1, key[1]+1),(key[0], key[1]+1),(key[0]+1, key[1]+1)]:
         if x in dict1:
@@ -9,6 +10,7 @@ def neighbors(key, dict1):
     return (list1, dict1)
 
 def grid2dict(grid):
+    # Convert the grid of 1's and 0's to a dictionary of coordinate pairs.
     dict1 = {}
     rows = len(grid)
     cols = len(grid[0])
@@ -20,6 +22,7 @@ def grid2dict(grid):
     return dict1
 
 def solve2(grid):
+    # Compute the size of the largest connected component using BFS.
     partition = []
     dict1 = grid2dict(grid)
 
