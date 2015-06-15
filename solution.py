@@ -38,10 +38,10 @@ def solve2(grid):
     
 
 def solve(grid):
+    # This function partitions a 2-dimensional array of 1's and 0's into its
+    # connected components and returns the size of the largest one. 
     rows = len(grid)
     cols = len(grid[0])
-    # This function partitions a 2-dimensional array of 1's and 0's into its
-    # connected components. The result is a list of connected-component sizes.
     partition = [0]
     prev_row = [0] * cols
     for row in xrange(rows):
@@ -84,21 +84,23 @@ def solve(grid):
 
         prev_row = curr_row
 
-    return partition
+    return max(partition)
 
 def main():
+    grid = []
+    # int(raw_input()) is used to avoid calling eval()
     num_rows = int(raw_input())
     num_cols = int(raw_input())
-    grid = []
 
     for row in xrange(num_rows):
         grid.append(map(int, raw_input().split(" ")))
 
-        #if len(grid[row]) != num_cols:
-        #    print "Row {0} has the wrong number of columns!".format(row)
-        #    return 1
+        if len(grid[row]) != num_cols:
+            print "Row {0} has the wrong number of columns!".format(row)
+            return 1
 
-    #print max(solve(grid))
+    # Both solve functions give the same answer, but solve2 is faster.
+    #print solve(grid)
     print solve2(grid)
         
 if __name__ == "__main__":
